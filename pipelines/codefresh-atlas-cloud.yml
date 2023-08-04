@@ -1,0 +1,61 @@
+# More examples of Codefresh YAML can be found at
+# https://codefresh.io/docs/docs/yaml-examples/examples/
+
+version: "1.0"
+# Stages can help you organize your steps in stages
+stages:
+  - "prepare"
+  - "migrate"
+
+steps:
+  clone:
+    title: "Cloning repository"
+    type: "git-clone"
+    repo: "kostis-codefresh/atlas-demo"
+    # CF_BRANCH value is auto set when pipeline is triggered
+    # Learn more at codefresh.io/docs/docs/codefresh-yaml/variables/
+    revision: "master"
+    git: "github-1"
+    stage: "prepare"
+  build_migration_image:
+    title: Building Migration Image
+    type: build
+    image_name: my-migrations
+    disable_push: true
+    working_directory: ${{clone}}
+    tag: 'latest'
+    dockerfile: Dockerfile
+    stage: "prepare"
+  preview:
+    title: "Linting Migrations"
+    type: "freestyle" # Run any command
+    image: ${{build_migration_image}} # The image in which command will be executed
+    working_directory: "${{clone}}" # Running command where code cloned
+    commands:
+      - /atlas migrate lint --latest 1 --dev-url "postgres://root:admin@postgres/demo?search_path=public&sslmode=disable"
+    stage: "migrate"
+    services:
+          composition:
+            postgres:
+              image: postgres:11.5
+              ports:
+                - 5432
+              environment: 
+              - POSTGRES_USER=root
+              - POSTGRES_PASSWORD=admin
+              - POSTGRES_DB=demo
+          readiness:
+            timeoutSeconds: 30
+            periodSeconds: 15
+            image: postgres:11.5
+            commands:
+              - "pg_isready -h postgres" 
+  migrate:
+    title: "Migrating db with Atlas Cloud"
+    type: "freestyle" # Run any command
+    image: ${{build_migration_image}} # The image in which command will be executed
+    working_directory: "${{clone}}" # Running command where code cloned
+    commands:
+      - /atlas migrate apply --env codefresh
+    stage: "migrate"
+
