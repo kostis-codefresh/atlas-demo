@@ -1,1 +1,2 @@
-drop table scrap_log;
+ALTER TABLE company 
+ADD COLUMN phone VARCHAR;
