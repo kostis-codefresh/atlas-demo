@@ -8,3 +8,4 @@ COPY --from=atlas /atlas .
 RUN chmod +x /atlas
 
 COPY migrations /migrations
+COPY atlas.hcl atlas.hcl
