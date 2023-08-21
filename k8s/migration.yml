@@ -1,0 +1,16 @@
+apiVersion: db.atlasgo.io/v1alpha1
+kind: AtlasSchema
+metadata:
+  name: atlas-schema-local-sample
+spec:
+  urlFrom:
+    secretKeyRef:
+      key: url
+      name: pg-credentials
+  schema:
+    sql: |
+      CREATE TABLE "company" 
+      ("id" integer NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 10), 
+      "name" text NOT NULL, "description" text NULL, 
+      "created" date NOT NULL, "updated" date NOT NULL, 
+      "active" boolean NOT NULL DEFAULT true, PRIMARY KEY ("id"));
