@@ -1,0 +1,19 @@
+apiVersion: db.atlasgo.io/v1alpha1
+kind: AtlasMigration
+metadata:
+  name: atlasmigration-cloud-sample
+spec:
+  urlFrom:
+    secretKeyRef:
+      key: url
+      name: pg-credentials
+  cloud:
+    project: "demo" # Atlas Cloud project name
+    tokenFrom:
+      secretKeyRef:
+        key: token
+        name: atlas-credentials
+  dir:
+    remote:
+      name: "demo" # Migration directory name in your atlas cloud project
+      # tag: "commit-id" # When tag is not specified, the latest tag will be used
